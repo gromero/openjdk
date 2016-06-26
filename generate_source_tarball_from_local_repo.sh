@@ -7,7 +7,13 @@
 
 repo=jdk9
 subrepos="corba hotspot jdk jaxws jaxp langtools nashorn"
-tag=`hg id -t --cwd ${repo}`
+
+if [ ! -z "$1" ]
+then
+  tag=$1
+else
+  tag=`hg id -t --cwd ${repo}`
+fi
 
 echo "Extracting archives from Mercurial repo (tag: ${tag})..."
 hg archive -t tar ${repo}.tar --cwd ${repo}
