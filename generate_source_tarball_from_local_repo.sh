@@ -1,9 +1,6 @@
 #!/bin/bash
 
-# TODO:
-#	repo, tag as arguments
-#	build .tar.xz filename using variables
-
+# TODO: build .tar.xz filename using arguments
 
 repo=jdk9
 subrepos="corba hotspot jdk jaxws jaxp langtools nashorn"
@@ -32,17 +29,13 @@ echo "Populating tree..."
 cp ../${repo}/${repo}.tar .
 tar xf ${repo}.tar
 rm ${repo}.tar
-# mv ${repo} jdk9
 pushd jdk9
 
 for subrepo in ${subrepos} 
 do
-# mkdir ${subrepo}
-# pushd ${subrepo}
   cp ../../${repo}/${subrepo}/${subrepo}.tar .
   tar xf ${subrepo}.tar
   rm ${subrepo}.tar
-# popd
 done
 
 
