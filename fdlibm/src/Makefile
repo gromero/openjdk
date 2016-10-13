@@ -1,4 +1,4 @@
-CFLAGS=-I../include -g -O0
+CFLAGS=-I../include -g -O3
 
 %.o:	%.c
 	gcc $(CFLAGS) -c $< -o $@
