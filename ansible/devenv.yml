@@ -1,0 +1,18 @@
+# run: sudo ansible-playbook -i "localhost," --connection=local devenv.yml
+---
+- hosts: localhost
+  tasks:
+  - name: Set infinite history size
+    replace: dest=/etc/profile regexp='HISTSIZE=.*' replace='HISTSIZE="INFINITUM"'
+
+  - name: git
+    package: name=git state=present
+
+  - name: vim
+    package: name=vim state=present
+
+  - name: git config username
+    git_config: name=user.name scope=system value='Gustavo Romero'
+
+  - name: git config email
+    git_config: name=user.email scope=system value='gromero@linux.vnet.ibm.com'
