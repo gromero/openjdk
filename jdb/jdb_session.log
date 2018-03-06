@@ -1,0 +1,203 @@
+gromero@gromero16:~/code$ javac BrokenClass.java # let's compile a broken class that throws a NullPointerException
+gromero@gromero16:~/code$ java BrokenClass 
+I'm method printA() and string given has length 4
+I'm method printB() and string given has length 4
+Exception in thread "main" java.lang.NullPointerException
+	at BrokenClass.printA(BrokenClass.java:19)
+	at BrokenClass.messageBroker(BrokenClass.java:13)
+	at BrokenClass.main(BrokenClass.java:8)
+gromero@gromero16:~/code$ # we need to recompile the .class with debug information, just as we do in gcc/clang, etc
+gromero@gromero16:~/code$ javac -g BrokenClass.java # -g adds the debug information so we can inspect locals
+gromero@gromero16:~/code$ jdb BrokenClass # call it throught Java Debugger (I wish it could be as good as gdb :-/
+Initializing jdb ...
+> run     
+run BrokenClass
+Set uncaught java.lang.Throwable
+Set deferred uncaught java.lang.Throwable
+> 
+VM Started: I'm method printA() and string given has length 4
+I'm method printB() and string given has length 4
+
+Exception occurred: java.lang.NullPointerException (uncaught)"thread=main", BrokenClass.printA(), line=19 bci=16
+19        System.out.println("I'm method printA() and string given has length " + s.length());
+
+main[1] list
+15          printB(msg);
+16      }
+17    
+18      static void printA(String s) {
+19 =>     System.out.println("I'm method printA() and string given has length " + s.length());
+20      }
+21    
+22      static void printB(String s) {
+23        System.out.println("I'm method printB() and string given has length " + s.length());
+24      }
+main[1] # up can use 'up' to move to the caller 
+main[1] up
+main[2] list  
+9      }
+10    
+11      static void messageBroker(String msg, int selector) {
+12        if (selector == 0)
+13 =>       printA(msg);
+14        else
+15          printB(msg);
+16      }
+17    
+18      static void printA(String s) {
+main[2] # and you can use locals to inspect to local variable
+main[2] locals
+Method arguments:
+msg = null
+selector = 0
+Local variables:
+main[2] list
+9      }
+10    
+11      static void messageBroker(String msg, int selector) {
+12        if (selector == 0)
+13 =>       printA(msg);
+14        else
+15          printB(msg);
+16      }
+17    
+18      static void printA(String s) {
+main[2] up
+main[3] list
+4        String s1 = null;
+5         
+6        messageBroker(s0, 0);
+7        messageBroker(s0, 1);
+8 =>     messageBroker(s1, 0); // will throw a NullPointerException
+9      }
+10    
+11      static void messageBroker(String msg, int selector) {
+12        if (selector == 0)
+13          printA(msg);
+main[3] locals
+Method arguments:
+args = instance of java.lang.String[0] (id=416)
+Local variables:
+s0 = "abcd"
+s1 = null
+
+Take a note of the source line: BrokenClass.java:8
+and restart the whole thing again:
+main[3] where
+  [3] BrokenClass.main (BrokenClass.java:8)
+
+gromero@gromero16:~/code$ jdb BrokenClass 
+Initializing jdb ...
+> stop in BrokenClass.main
+Deferring breakpoint BrokenClass.main.
+It will be set after the class is loaded.
+> run
+run BrokenClass
+Set uncaught java.lang.Throwable
+Set deferred uncaught java.lang.Throwable
+> 
+VM Started: Set deferred breakpoint BrokenClass.main
+
+Breakpoint hit: "thread=main", BrokenClass.main(), line=3 bci=0
+3        String s0 = "abcd";
+
+main[1] list
+1    class BrokenClass {
+2      public static void main(String[] args) {
+3 =>     String s0 = "abcd";
+4        String s1 = null;
+5         
+6        messageBroker(s0, 0);
+7        messageBroker(s0, 1);
+8        messageBroker(s1, 0); // will throw a NullPointerException
+9      }
+10    
+main[1] locals
+Method arguments:
+args = instance of java.lang.String[0] (id=407)
+Local variables:
+main[1] step
+> 
+Step completed: "thread=main", BrokenClass.main(), line=4 bci=3
+4        String s1 = null;
+
+main[1] list
+1    class BrokenClass {
+2      public static void main(String[] args) {
+3        String s0 = "abcd";
+4 =>     String s1 = null;
+5         
+6        messageBroker(s0, 0);
+7        messageBroker(s0, 1);
+8        messageBroker(s1, 0); // will throw a NullPointerException
+9      }
+10    
+main[1] step
+> 
+Step completed: "thread=main", BrokenClass.main(), line=6 bci=5
+6        messageBroker(s0, 0);
+
+main[1] list
+2      public static void main(String[] args) {
+3        String s0 = "abcd";
+4        String s1 = null;
+5         
+6 =>     messageBroker(s0, 0);
+7        messageBroker(s0, 1);
+8        messageBroker(s1, 0); // will throw a NullPointerException
+9      }
+10    
+11      static void messageBroker(String msg, int selector) {
+main[1] next
+> I'm method printA() and string given has length 4
+Step completed: 
+"thread=main", BrokenClass.main(), line=7 bci=10
+7        messageBroker(s0, 1);
+
+main[1] list
+3        String s0 = "abcd";
+4        String s1 = null;
+5         
+6        messageBroker(s0, 0);
+7 =>     messageBroker(s0, 1);
+8        messageBroker(s1, 0); // will throw a NullPointerException
+9      }
+10    
+11      static void messageBroker(String msg, int selector) {
+12        if (selector == 0)
+main[1] next
+> I'm method printB() and string g
+Step completed: iven has length 4
+"thread=main", BrokenClass.main(), line=8 bci=15
+8        messageBroker(s1, 0); // will throw a NullPointerException
+
+main[1] list
+4        String s1 = null;
+5         
+6        messageBroker(s0, 0);
+7        messageBroker(s0, 1);
+8 =>     messageBroker(s1, 0); // will throw a NullPointerException
+9      }
+10    
+11      static void messageBroker(String msg, int selector) {
+12        if (selector == 0)
+13          printA(msg);
+main[1] locals	  
+Method arguments:
+args = instance of java.lang.String[0] (id=407)
+Local variables:
+s0 = "abcd"
+s1 = null
+main[1] set s1="xyz"
+ s1="xyz" = "xyz"
+main[1] locals
+Method arguments:
+args = instance of java.lang.String[0] (id=407)
+Local variables:
+s0 = "abcd"
+s1 = "xyz"
+main[1] cont
+> I'm method printA() and string given has length 3
+
+The application exited
+gromero@gromero16:~/code$
