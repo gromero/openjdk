@@ -14,7 +14,7 @@ class x {
   Runnable work1; // conflicting task
   CyclicBarrier barrier; 
   int sharedVariable = 0;
-  int[] arrayx = new int[1024*1024*4];
+  private static final byte[] arrayx = new byte[1024*1024*100];
   int loopCounter;
 
   public x() { 
@@ -77,14 +77,26 @@ class x {
        }
     }
 
-  // -- generate conflict
+  // -- generate memory conflict
 
    void transactionalRegion() {
+
+/*
    for (int i = 0; i < conflictLoop; i++) {
-     synchronized (monitor) {
+       synchronized (monitor) {
        sharedVariable--;
-      }
+       }
    } 
+*/
+
+  for (int j = 0; j < 10;j++) {
+
+    synchronized (monitor) {
+   for( int i=0; i < 1024*1024*100; i++) {
+    arrayx[i]++;
+    }
+   }
+} 
    }
 
 
@@ -104,17 +116,17 @@ class x {
     
 
    thread1 = new Thread(work1); // conflicting thread
-   thread1.start();
+//   thread1.start();
 
 
    try {
-       barrier.await();
+//       barrier.await();
    } catch (Exception e) {
        System.out.println("6");
    }
 
    transactionalRegion();
-   thread1.join(); // wait thread1 finish
+//   thread1.join(); // wait thread1 finish
 
   }
 
