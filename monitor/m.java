@@ -99,9 +99,7 @@ class x {
       System.out.println("5");
    }
    for (int j = 0; j < conflictLoop; j++)
-       synchronized (monitor) { 
        sharedVariable++;
-       }
    }; 
     
 
