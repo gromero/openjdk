@@ -11,6 +11,7 @@ class x {
   Runnable work0; 
   CyclicBarrier barrier; 
   int sharedVariable = 0;
+  int[] arrayx = new int[1024];
   int loopCounter;
 
   public x() { 
@@ -38,16 +39,19 @@ class x {
       synchronized (monitor) {
       try {
          barrier.await(); 
-         sharedVariable--;
+         for (int i = 0; i < 1000000; i++) {
+          sharedVariable--;
+          for (int j = 0; j < 1024; j++)
+              arrayx[j] = j;
+         }
       } catch (Exception e) {
           System.out.println("1");
           // do nothing.
       }
       } 
   
-//      while (1 == 1) sharedVariable++;
 
-
+/*
       try {
           // wait until primordial thread dies
 //        monitor.wait();
@@ -56,22 +60,26 @@ class x {
         System.out.println("2");
         // do nothing.
       }
+*/
 
     };
 
     
     System.out.println("Creating thread0...");
 
-//    thread0 = new Thread(work0);
-//    thread0.setDaemon(true);
-//    thread0.start();
+    thread0 = new Thread(work0);
+    thread0.setDaemon(true);
+    thread0.start();
 
-//    barrier.await();
+  barrier.await();
 
     System.out.println("Trying to inflate lock...");
     synchronized (monitor) {
-       for (int i = 0; i < loopCounter; i++)
+       for (int i = 0; i < loopCounter; i++) {
        sharedVariable++;
+       for (int j = 0; j < 1024; j++) 
+         arrayx[j] = j;
+       }
     }
   }
 }
