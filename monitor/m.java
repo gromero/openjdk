@@ -5,7 +5,7 @@ import java.util.concurrent.CyclicBarrier;
 
 class x { 
 
-  final int conflictLoop = 10000;
+  final int conflictLoop = 1000000;
   Object monitor = new Object();
   WhiteBox wb;
   Thread thread0;
