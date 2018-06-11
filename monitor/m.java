@@ -39,28 +39,22 @@ class x {
       synchronized (monitor) {
       try {
          barrier.await(); 
-         for (int i = 0; i < 1000000; i++) {
-          sharedVariable--;
-          for (int j = 0; j < 1024; j++)
-              arrayx[j] = j;
-         }
       } catch (Exception e) {
-          System.out.println("1");
-          // do nothing.
+        System.out.println("0");
+
       }
-      } 
   
 
-/*
       try {
           // wait until primordial thread dies
-//        monitor.wait();
+        monitor.wait();
       } catch (Exception e) {
 //          throw e;
         System.out.println("2");
         // do nothing.
       }
-*/
+
+      }
 
     };
 
@@ -69,19 +63,20 @@ class x {
 
     thread0 = new Thread(work0);
     thread0.setDaemon(true);
-    thread0.start();
+   thread0.start();
+
 
   barrier.await();
 
     System.out.println("Trying to inflate lock...");
     synchronized (monitor) {
-       for (int i = 0; i < loopCounter; i++) {
        sharedVariable++;
-       for (int j = 0; j < 1024; j++) 
-         arrayx[j] = j;
        }
     }
-  }
+
+
+//    thread0.join();
+
 }
 class m  {
   protected Object monitor;
