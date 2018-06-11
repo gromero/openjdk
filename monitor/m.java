@@ -5,13 +5,16 @@ import java.util.concurrent.CyclicBarrier;
 
 class x { 
 
+  final int conflictLoop = 10000;
   Object monitor = new Object();
   WhiteBox wb;
   Thread thread0;
+  Thread thread1; // conflicting thread
   Runnable work0; 
+  Runnable work1; // conflicting task
   CyclicBarrier barrier; 
   int sharedVariable = 0;
-  int[] arrayx = new int[1024];
+  int[] arrayx = new int[1024*1024*4];
   int loopCounter;
 
   public x() { 
@@ -33,7 +36,7 @@ class x {
   } 
 
   void inflateMonitor() throws Exception { 
-   barrier = new CyclicBarrier(1);
+   barrier = new CyclicBarrier(2);
 
    work0 = () -> {
       synchronized (monitor) {
@@ -63,7 +66,7 @@ class x {
 
     thread0 = new Thread(work0);
     thread0.setDaemon(true);
-   thread0.start();
+    thread0.start();
 
 
   barrier.await();
@@ -74,6 +77,48 @@ class x {
        }
     }
 
+  // -- generate conflict
+
+   void transactionalRegion() {
+   for (int i = 0; i < conflictLoop; i++) {
+     synchronized (monitor) {
+       sharedVariable--;
+      }
+   } 
+   }
+
+
+
+   void causeConflict() throws Exception {
+
+   work1 = () -> {
+    try {
+
+    barrier.await();
+   } catch (Exception e) {
+      System.out.println("5");
+   }
+   for (int j = 0; j < conflictLoop; j++)
+       synchronized (monitor) { 
+       sharedVariable++;
+       }
+   }; 
+    
+
+   thread1 = new Thread(work1); // conflicting thread
+   thread1.start();
+
+
+   try {
+       barrier.await();
+   } catch (Exception e) {
+       System.out.println("6");
+   }
+
+   transactionalRegion();
+   thread1.join(); // wait thread1 finish
+
+  }
 
 //    thread0.join();
 
@@ -140,6 +185,7 @@ class m  {
    x a = new x(value); 
    a.inflateMonitor();
    a.isMonitorInflated();
+   a.causeConflict();
    
   }
 
