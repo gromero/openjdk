@@ -1,10 +1,12 @@
 import sun.hotspot.WhiteBox;
 import java.util.concurrent.CyclicBarrier;
+import jdk.internal.misc.Unsafe;
 
 
 
 class x { 
 
+  private static final Unsafe UNSAFE = Unsafe.getUnsafe();
   final int conflictLoop = 1000000;
   Object monitor = new Object();
   WhiteBox wb;
@@ -89,6 +91,7 @@ class x {
    } 
 */
 
+/*
   for (int j = 0; j < 10;j++) {
 
     synchronized (monitor) {
@@ -97,6 +100,14 @@ class x {
     }
    }
 } 
+*/
+   synchronized (monitor) {
+    synchronized (monitor) {
+    sharedVariable++;
+    UNSAFE.pageSize();
+    }
+   }
+
    }
 
 
@@ -125,6 +136,9 @@ class x {
        System.out.println("6");
    }
 
+   transactionalRegion();
+   transactionalRegion();
+   transactionalRegion();
    transactionalRegion();
 //   thread1.join(); // wait thread1 finish
 
