@@ -81,7 +81,7 @@ class x {
 
   // -- generate memory conflict
 
-   void transactionalRegion() {
+   void transactionalRegion(boolean abort) {
 
 /*
    for (int i = 0; i < conflictLoop; i++) {
@@ -101,16 +101,12 @@ class x {
    }
 } 
 */
-   synchronized (monitor) {
     synchronized (monitor) {
     sharedVariable++;
-    UNSAFE.pageSize();
+    if (abort)
+       UNSAFE.pageSize();
     }
    }
-
-   }
-
-
 
    void causeConflict() throws Exception {
 
@@ -136,10 +132,17 @@ class x {
        System.out.println("6");
    }
 
-   transactionalRegion();
-   transactionalRegion();
-   transactionalRegion();
-   transactionalRegion();
+
+   int warmup = 1000;
+   int total  = 10000;
+
+   for (int x = 0; x < total; x++)
+     transactionalRegion(x >= warmup);
+
+//   transactionalRegion();
+//   transactionalRegion();
+//   transactionalRegion();
+//   transactionalRegion();
 //   thread1.join(); // wait thread1 finish
 
   }
