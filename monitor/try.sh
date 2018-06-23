@@ -10,6 +10,7 @@ set -x
    m.java
 
 # java
+LD_LIBRARY_PATH=/home/gromero/hg/jdk11/jdk/src/utils/hsdis/build/linux-ppc64le \
 /home/gromero/openjdks/jdk11/bin/java \
    -Xbootclasspath/a:/home/gromero/hg/jdk11/jdk/build/linux-ppc64le-normal-server-release/support/test/lib/wb.jar \
    -XX:+UnlockExperimentalVMOptions \
