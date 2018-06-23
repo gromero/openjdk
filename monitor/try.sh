@@ -23,6 +23,8 @@ set -x
    -XX:RTMTotalCountIncrRate=1 \
    -XX:+UseRTMDeopt \
    -XX:RTMAbortRatio=10 \
+   -XX:RTMLockingThreshold=100000 \
+   -XX:RTMAbortThreshold=0 \
    --add-exports \
    java.base/jdk.internal.misc=ALL-UNNAMED \
    -XX:CompileOnly=x.transactionalRegion \
@@ -54,10 +56,16 @@ set -x
    -XX:RTMTotalCountIncrRate=1 \
    -XX:+UseRTMDeopt \
    -XX:RTMAbortRatio=10 \
+   -XX:RTMLockingThreshold=100000 \
+   -XX:RTMAbortThreshold=0 \
    --add-exports \
    java.base/jdk.internal.misc=ALL-UNNAMED \
    -XX:CompileOnly=x.transactionalRegion \
     m 1
+
+# RTMAbortRatio + UseRTMDeopt -> deoptimize if abort ratio >= RTMAbortRatio.
+# RTMAbortThreshold -> number of abort necessary to calculate  abort ratio. 0 means on every abort.
+# RTMLockingThreshold -> if the abort ratio remains low after RTMLockingThreshold, deopt and recompile with RTM locks and wo/ abort ratio calculation.
 
 set +x
 }
