@@ -29,6 +29,7 @@ LD_LIBRARY_PATH=/home/gromero/hg/jdk11/jdk/src/utils/hsdis/build/linux-ppc64le \
    --add-exports \
    java.base/jdk.internal.misc=ALL-UNNAMED \
    -XX:CompileOnly=x.transactionalRegion \
+   $@ \
    m 1
 
 set +x
@@ -74,7 +75,7 @@ set +x
 if [[ "$ARCH" = "ppc64le" ]]
 then
   echo "Running on PPC64 LE..."
-  ppc64_abort_ratio
+  ppc64_abort_ratio $@
 else
   echo "Running on x86_64..."
   x64_abort_ratio
