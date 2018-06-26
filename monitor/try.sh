@@ -28,7 +28,7 @@ LD_LIBRARY_PATH=/home/gromero/hg/jdk11/jdk/src/utils/hsdis/build/linux-ppc64le \
    -XX:RTMAbortThreshold=0 \
    --add-exports \
    java.base/jdk.internal.misc=ALL-UNNAMED \
-   -XX:CompileOnly=x.transactionalRegion \
+   -XX:CompileOnly=x.transactionalRegion,.pageSize \
    $@ \
    m 1
 
