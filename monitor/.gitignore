@@ -7,3 +7,4 @@ w
 core
 *.class
 matrix
+*.o
