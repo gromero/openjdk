@@ -37,8 +37,21 @@ int main()
      }; 
   };
 
+  class s {
+    public:
+    class C {
+    public:
+      enum {
+        x,
+        y,
+      };
+    };
+  };
+
+  bool tm_counter[][counter::NUM_COUNTER] =
   // counters                                 confl.,  aborts, nests, footprint // bits
-  bool tm_counter[][counter::NUM_COUNTER] = {{ true ,  false , false, false },  // bit conflict_tm
+
+                                            {{ true ,  false , false, false },  // bit conflict_tm
                                              { true ,  false , false, false },  // bit conflict_non_tm
                                              { false,  true  , false, false },  // bit abort
                                              { false,  false , false, true  },  // bit footprint
@@ -50,6 +63,7 @@ int main()
   int counter;
   int bit;
 
+  printf("x,y = %d,%d\n", s::C::x, s::C::y);
   printf("# Bits     = %d\n"  , bitz::NUM_BITZ);
   printf("# Counters = %d\n\n", counter::NUM_COUNTER);
 
@@ -73,7 +87,7 @@ int main()
           default:
             break;
         }
-      }   
+      }
     }
   }
 }
